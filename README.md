@@ -1,195 +1,317 @@
-# SYNK-IA · Chicken Palace Ibiza
+<div align="center">
 
-Plataforma **Next.js 14 (App Router)** preparada para desplegarse en **dos dominios** desde un único proyecto/código, mediante enrutamiento por dominio (`middleware.ts`):
+# 🍗 SYNK-IA
 
-| Dominio | Qué sirve | Ruta interna |
-|---|---|---|
-| **pedir.sinkialabs.com** | Sistema de **pedidos online** para clientes (recogida en tienda, envío por WhatsApp) | `/pedir` |
-| **app.sinkialabs.com** | **ERP completo SYNK-IA** (Command Center: albaranes, proveedores, stock, etc.) | `/command-center` |
+### Sistema ERP Inteligente + Plataforma de Pedidos Online
+**Chicken Palace Ibiza SL**
 
-> Un solo despliegue de código sirve ambos dominios. El `middleware.ts` detecta el `host` de la petición y reescribe/redirige a la sección correspondiente.
+[![Stack](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](#-stack-tecnológico)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](#-stack-tecnológico)
+[![Tailwind](https://img.shields.io/badge/TailwindCSS-3-38BDF8?logo=tailwindcss&logoColor=white)](#-stack-tecnológico)
 
----
-
-## 🗂️ Estructura del proyecto
-
-```
-nextjs_space/
-├── app/
-│   ├── layout.tsx              # Layout raíz (lang="es")
-│   ├── page.tsx                # Landing con acceso a /pedir y /command-center
-│   ├── globals.css
-│   ├── pedir/
-│   │   └── page.tsx            # Página de pedidos (server component)
-│   ├── command-center/
-│   │   └── page.tsx            # ERP embebido a pantalla completa (iframe → /erp)
-│   └── api/
-│       └── orders/route.ts     # POST de pedidos (referencia CP-XXXXXX + persistencia opcional)
-├── components/
-│   └── ordering/OrderingApp.tsx  # UI completa del pedido (carrito, checkout, WhatsApp)
-├── lib/
-│   ├── products.ts             # Catálogo de 53 productos + categorías + precios
-│   ├── db.ts                   # Cliente Prisma (singleton)
-│   └── utils.ts
-├── prisma/
-│   └── schema.prisma           # PostgreSQL: Product, Order, OrderItem
-├── public/
-│   ├── products/               # 53 imágenes reales de producto (.png)
-│   └── erp/                     # ERP (build Vite/base44) servido como estático
-├── middleware.ts               # Enrutamiento por dominio
-├── .env.example                # Variables de entorno (copiar a .env)
-└── next.config.js
-```
+</div>
 
 ---
 
-## 🚀 Puesta en marcha (local)
+## 📋 Índice
+
+1. [Descripción del proyecto](#-descripción-del-proyecto)
+2. [Sobre Chicken Palace Ibiza](#-sobre-chicken-palace-ibiza)
+3. [Stack tecnológico](#-stack-tecnológico)
+4. [Características principales](#-características-principales)
+5. [Estructura del proyecto](#-estructura-del-proyecto)
+6. [Instalación y configuración](#-instalación-y-configuración)
+7. [Despliegues (app + pedir)](#-despliegues-separados)
+8. [Guía de uso](#-guía-de-uso)
+9. [Integración Revo XEF](#-integración-revo-xef)
+10. [Credenciales de acceso](#-credenciales-de-acceso)
+11. [Documentación adicional](#-documentación-adicional)
+
+---
+
+## 🎯 Descripción del proyecto
+
+**SYNK-IA** es un sistema de gestión empresarial (ERP) inteligente, diseñado a medida para
+**Chicken Palace Ibiza SL**. Unifica en una sola plataforma la operativa completa de un
+restaurante moderno: gestión financiera, recursos humanos, control de producción, email
+inteligente, agentes de IA y un **sistema de pedidos online** orientado al cliente final.
+
+El proyecto se divide en **dos experiencias diferenciadas** que se despliegan por separado:
+
+| Aplicación | Dominio | Público | Propósito |
+|------------|---------|---------|-----------|
+| 🏢 **SYNK-IA ERP** | `app.sinkialabs.com` | Equipo / Dirección | Panel de control interno completo (back office) |
+| 🛒 **Pedidos Online** | `pedir.sinkialabs.com` | Clientes | Carta digital y realización de pedidos (`/pedir`) |
+
+---
+
+## 🐔 Sobre Chicken Palace Ibiza
+
+**Chicken Palace Ibiza SL** es un restaurante especializado en pollo asado y comida para
+llevar ubicado en Ibiza. SYNK-IA digitaliza su operativa diaria — desde la toma de pedidos
+y la sincronización con el TPV (Revo XEF) hasta la gestión de facturas, nóminas y
+proveedores — apoyándose en agentes de inteligencia artificial para automatizar tareas
+repetitivas y ofrecer una visión ejecutiva en tiempo real.
+
+- 📧 Contacto corporativo: **info@chickenpalace.es**
+- 🧾 TPV / Punto de venta: **Revo XEF**
+- 📦 Categorías de menú gestionadas: **COMIDA** y **BEBIDA**
+
+---
+
+## 🛠 Stack tecnológico
+
+| Capa | Tecnología |
+|------|-----------|
+| **Framework Frontend** | React 18 + Vite 6 |
+| **Routing** | React Router DOM 7 |
+| **Estilos** | Tailwind CSS 3 + `tailwindcss-animate` |
+| **Componentes UI** | Radix UI + shadcn/ui (`components.json`) |
+| **Iconos** | lucide-react |
+| **Animaciones** | Framer Motion |
+| **Gráficas** | Recharts |
+| **Formularios** | React Hook Form + Zod |
+| **Estado / Datos** | TanStack React Query + SDK de backend |
+| **Notificaciones UI** | Sonner |
+| **Integración TPV** | Revo XEF API |
+| **Mensajería** | WhatsApp Business |
+| **Almacenamiento** | Amazon S3 |
+| **Email** | Gmail + triaje con IA |
+| **Calidad** | ESLint 9 |
+
+> **Nota técnica:** El frontend (este repositorio) es una SPA de Vite + React que se comunica
+> con el backend de servicios mediante el cliente SDK configurado en `src/api/`. El App ID y
+> el endpoint del backend se definen vía variables de entorno (`VITE_APP_ID`,
+> `VITE_API_URL`). Las integraciones con Revo XEF, WhatsApp, S3 y los LLM se ejecutan en
+> funciones del lado servidor.
+
+---
+
+## ✨ Características principales
+
+### 📊 Dashboard ejecutivo
+- Visión 360° del negocio en tiempo real (`Dashboard`, `SystemOverview`, `ExecutiveReports`).
+- Métricas de caja, productos más vendidos y alertas consolidadas.
+
+### 🤖 Agentes de IA
+- Agente central (`CentralAgent`, `CEOBrain`) que coordina tareas automatizadas.
+- Auto-procesamiento con reglas de confianza (alta confianza → automático; baja → revisión manual).
+- Hub de automatizaciones (`AutomationHub`) y comandos por voz (`VoiceCommands`).
+
+### 💰 Gestión financiera
+- Facturación y gestor de facturas (`Billing`, `Invoices`, `GestorFacturas`).
+- Albaranes (`Albaranes`), análisis de negocio (`BusinessAnalysis`, `FinanceDashboard`).
+- VeriFactu (`VeriFactu`) y comparador de proveedores (`Comparator`, `Providers`).
+
+### 👥 Recursos Humanos (RRHH)
+- Personal y fichajes (`Staff`, `AttendanceControl`, `Timesheets`).
+- Nóminas (`Payrolls`), contratos (`Contracts`), vacaciones (`VacationRequests`).
+- Agente de RRHH (`HRAgent`, `HRDocuments`), mutua (`MutuaManager`).
+
+### 📧 Email inteligente
+- Buzón inteligente y triaje automático (`SmartMailbox`, `EmailTriage`, `EmailProcessor`).
+- Configuración de cuentas (`EmailSetup`).
+
+### 🛒 Sistema de pedidos online (`/pedir`)
+- Carta digital con categorías **COMIDA** y **BEBIDA**, carrito y modal de producto.
+- Panel de pedidos (`OrdersDashboard`) y pantalla de cocina (`KitchenDisplay`).
+- Confirmación de pedidos vía **WhatsApp**.
+
+### 🔗 Integración Revo XEF
+- Sincronización del menú (`RevoSync`, `RevoDashboard`, `RevoManual`).
+- Sincronización web (`WebSync`) e inventario de producto (`ProductInventory`).
+
+### 📁 Archivo y cumplimiento
+- Archivo documental inteligente (`DocumentArchive`, `CompanyDocs`).
+- Caja fuerte legal (`LegalVault`), RGPD (`RGPDManager`), portal de gestoría (`PortalGestoria`).
+
+### 🔐 Otros módulos
+- Cámaras de seguridad (`SecurityCameras`), control de producción (`ProductionControl`),
+  interfaz para trabajadores (`WorkerInterface`, `WorkerMobile`, `EmployeeHome`) y
+  diagnósticos de conexión/API (`ApiDiagnostics`, `ConnectionDiagnostics`).
+
+---
+
+## 📂 Estructura del proyecto
+
+```
+pedir_sinkialabs.com/
+├── public/                     # Recursos estáticos
+├── src/
+│   ├── api/                    # Cliente SDK y entidades de datos
+│   │   ├── entities.js         # Entidades de datos
+│   │   ├── functions.js        # Funciones backend
+│   │   └── integrations.js     # Integraciones (Revo, email, etc.)
+│   ├── components/             # Componentes reutilizables
+│   │   ├── agents/             # Componentes de agentes IA
+│   │   ├── dashboard/          # Widgets del dashboard
+│   │   ├── staff/              # Componentes de RRHH
+│   │   ├── worker/             # Interfaz de trabajadores
+│   │   └── ui/                 # Librería UI (shadcn/Radix)
+│   ├── hooks/                  # Hooks de React
+│   ├── lib/                    # Utilidades
+│   ├── pages/                  # Páginas / rutas (50+ módulos)
+│   │   ├── Dashboard.jsx       # Panel ejecutivo
+│   │   ├── OrdersDashboard.jsx # Gestión de pedidos
+│   │   ├── RevoSync.jsx        # Sincronización Revo XEF
+│   │   ├── SmartMailbox.jsx    # Email inteligente
+│   │   └── ...                 # (Finanzas, RRHH, IA, etc.)
+│   ├── App.jsx                 # Componente raíz
+│   └── main.jsx                # Punto de entrada
+├── docs/                       # Documentación técnica del proyecto
+├── .env.example                # Plantilla de variables de entorno
+├── components.json             # Configuración shadcn/ui
+├── tailwind.config.js          # Configuración de Tailwind
+├── vite.config.js              # Configuración de Vite
+└── package.json
+```
+
+---
+
+## ⚙️ Instalación y configuración
+
+### Requisitos previos
+- **Node.js** ≥ 18
+- **npm** ≥ 9 (o `yarn` / `pnpm`)
+
+### Pasos
 
 ```bash
-cd nextjs_space
-cp .env.example .env        # editar valores
-npm install                  # instala dependencias + genera Prisma Client
-npm run dev                  # http://localhost:3000
+# 1. Clonar el repositorio
+git clone https://github.com/neo44hd/pedir_sinkialabs.com.git
+cd pedir_sinkialabs.com
+
+# 2. Instalar dependencias
+npm install
+
+# 3. Configurar variables de entorno
+cp .env.example .env
+#    Edita .env con los valores reales (App ID, Revo, WhatsApp, S3, etc.)
+
+# 4. Arrancar en desarrollo
+npm run dev
+#    Disponible en http://localhost:5173
+
+# 5. Build de producción
+npm run build
+
+# 6. Previsualizar el build
+npm run preview
 ```
 
-- Pedidos: `http://localhost:3000/pedir`
-- ERP: `http://localhost:3000/command-center`
-- Simular un dominio en local: `http://localhost:3000/?host=pedir.sinkialabs.com`
-
-### Build de producción
-```bash
-npm run build    # prisma generate + next build
-npm start        # sirve en el puerto 3000
-```
+| Script | Acción |
+|--------|--------|
+| `npm run dev` | Servidor de desarrollo (Vite) |
+| `npm run build` | Compila a `dist/` |
+| `npm run preview` | Sirve el build de producción |
+| `npm run lint` | Análisis estático con ESLint |
 
 ---
 
-## 🌐 Despliegue en los dos dominios
+## 🚀 Despliegues separados
 
-El **mismo proyecto** se despliega una sola vez. Después se apuntan ambos dominios al despliegue:
+SYNK-IA está pensado para desplegarse como **dos aplicaciones independientes** que comparten
+el mismo código base pero exponen experiencias distintas:
 
-1. Despliega el proyecto (Vercel, VPS con `npm start`, etc.).
-2. En tu proveedor de DNS, crea registros `CNAME` para:
-   - `pedir.sinkialabs.com`
-   - `app.sinkialabs.com`
-   apuntando al host del despliegue.
-3. Añade ambos dominios al despliegue (en Vercel: *Project → Settings → Domains*).
-4. El `middleware.ts` se encarga del resto:
-   - peticiones a `pedir.sinkialabs.com` → `/pedir`
-   - peticiones a `app.sinkialabs.com` → `/command-center`
+### 1️⃣ `app.sinkialabs.com` — ERP completo (back office)
+- **Audiencia:** equipo interno y dirección.
+- **Acceso:** requiere autenticación de usuario.
+- **Contenido:** todos los módulos (dashboard, finanzas, RRHH, agentes IA, email, etc.).
+- **Build:** `npm run build` y servir `dist/` bajo el dominio `app.sinkialabs.com`.
 
-> Los dominios se pueden cambiar sin tocar código mediante las variables
-> `NEXT_PUBLIC_ORDERING_HOST` y `NEXT_PUBLIC_APP_HOST` (admiten varios separados por comas).
+### 2️⃣ `pedir.sinkialabs.com` — Pedidos online (cliente final)
+- **Audiencia:** clientes del restaurante.
+- **Acceso:** público, ruta principal `/pedir`.
+- **Contenido:** carta digital (COMIDA / BEBIDA), carrito, checkout y confirmación por WhatsApp.
+- **Build:** mismo proyecto, exponiendo la ruta `/pedir` como página de inicio del dominio.
 
----
+> **Rutas clave:** la ruta `/pedir` corresponde al sistema de pedidos online
+> (dominio `pedir.sinkialabs.com`) y la ruta `/command-center` al panel de control
+> interno (dominio `app.sinkialabs.com`).
 
-## 🔑 Variables de entorno (`.env`)
+> **ℹ️ Nota sobre el contenido de este repositorio:**
+> Este repositorio contiene el **código fuente** de SYNK-IA (Vite + React, editable y
+> mantenible) junto con los **assets reales de producto** en `public/products/`
+> (53 imágenes: pollo asado, croquetas, ensaladas, bebidas, postres, etc.) listos para
+> la carta digital de `pedir.sinkialabs.com`.
 
-Ver `.env.example`. Las principales:
-
-| Variable | Descripción |
-|---|---|
-| `NEXT_PUBLIC_ORDERING_HOST` | Dominio(s) de pedidos (def. `pedir.sinkialabs.com`) |
-| `NEXT_PUBLIC_APP_HOST` | Dominio(s) del ERP (def. `app.sinkialabs.com`) |
-| `NEXT_PUBLIC_WHATSAPP_PHONE` | Teléfono del restaurante para recibir pedidos (formato internacional, p.ej. `34600000000`) |
-| `DATABASE_URL` | PostgreSQL. **Opcional**: sin ella los pedidos se procesan igualmente vía WhatsApp |
-| `REVO_XEF_*` | Credenciales de Revo XEF (sincronización de carta/precios) |
-| `GMAIL_*` | Cuenta `info@chickenpalace.es` para notificaciones |
-| `AWS_*` / `S3_*` | Almacenamiento de imágenes/adjuntos |
-
----
-
-## 🍗 Catálogo y precios
-
-- El catálogo (`lib/products.ts`) incluye **53 productos** con sus imágenes reales, agrupados en 9 categorías (Pollo, Carnes, Patatas, Croquetas, Ensaladas, Pastas, Entrantes, Postres, Bebidas) y dos familias (COMIDA / BEBIDA).
-- **Los precios actuales son provisionales (placeholders).** La fuente de verdad de la carta y los precios es **Revo XEF**; se pueden editar en `lib/products.ts` o conectar con la API de Revo para sincronizarlos automáticamente.
+#### Recomendación de configuración
+Al separar los deploys, usa la variable `VITE_APP_ID` y las claves de integración
+propias de cada entorno en su respectivo `.env`. El deploy de `pedir.` solo necesita las
+credenciales de Revo XEF (menú) y WhatsApp (confirmación de pedidos); el deploy de `app.`
+necesita el conjunto completo (S3, Gmail, IA, etc.).
 
 ---
 
-## 🧾 Pedidos
+## 📖 Guía de uso
 
-- El cliente arma su pedido, rellena nombre/teléfono y confirma.
-- Se genera una referencia `CP-XXXXXX` y se abre **WhatsApp** con el resumen para enviarlo al restaurante.
-- Si `DATABASE_URL` está configurada, el pedido también se **persiste en PostgreSQL** (`prisma/schema.prisma`).
+### Para clientes — pedir.sinkialabs.com
+1. Accede a **`/pedir`**.
+2. Explora la carta organizada por categorías **COMIDA** y **BEBIDA**.
+3. Añade productos al carrito desde el modal de producto.
+4. Revisa el carrito y confirma el pedido.
+5. Recibe la confirmación por **WhatsApp**.
 
----
-
-## 🖥️ Command Center (ERP)
-
-El ERP completo (construido con Vite + base44) se sirve como contenido estático desde `public/erp/` y se incrusta a pantalla completa en `/command-center`. Para regenerarlo tras cambios en el código fuente del ERP:
-
-```bash
-# en el repo del ERP (Vite)
-npx vite build --base=/erp/
-cp -r dist/* /ruta/a/nextjs_space/public/erp/
-```
-
----
-
-## 🚀 Deploy en Abacus AI (producción)
-
-El proyecto está **100% listo para desplegar en Abacus AI**. Pasos:
-
-### Paso 1: Verificación local
-Ya completado ✅:
-```bash
-npm install        # ✅ Ejecutado
-npm run build      # ✅ Compilado exitosamente (6 rutas)
-ls .next/          # ✅ Build listo para enviar a Abacus
-```
-
-### Paso 2: Deploy en Abacus AI
-1. Ve a [Abacus AI Panel](https://app.abacusai.com)
-2. Selecciona tu app o crea una nueva
-3. Busca **"Deploy" / "Publicar aplicación"**
-4. Abacus ejecutará automáticamente:
-   - `npm install`
-   - `npm run build` (modo `standalone`)
-   - Empaquetará y desplegará
-5. **Guarda la URL pública** que Abacus muestre (ej: `https://tu-app.abacusai.app`)
-
-### Paso 3: Configurar variables de entorno en Abacus
-En **Environment Variables**, ingresa exactamente:
-```
-NEXT_PUBLIC_APP_HOST=app.sinkialabs.com
-NEXT_PUBLIC_ORDERING_HOST=pedir.sinkialabs.com
-NEXT_PUBLIC_WHATSAPP_PHONE=34XXXXXXXXX
-NEXT_PUBLIC_ADMIN_PIN=XXXX
-DATABASE_URL=
-NODE_ENV=production
-```
-
-⚠️ **Importante**:
-- `NEXT_PUBLIC_WHATSAPP_PHONE`: Reemplaza `34XXXXXXXXX` con tu número real (sin `+`, sin espacios)
-- `NEXT_PUBLIC_ADMIN_PIN`: Usa un PIN seguro, **no dejes `1234`**
-- `DATABASE_URL`: Déjalo vacío para modo "solo WhatsApp" sin persistencia en BD
-
-### Paso 4: Añadir dominios personalizados
-En **Custom Domains** del panel de Abacus:
-1. Añade: `pedir.sinkialabs.com`
-2. Añade: `app.sinkialabs.com`
-3. Copia los valores CNAME que Abacus muestre para cada dominio
-
-### Paso 5: Configurar DNS
-En tu proveedor de `sinkialabs.com` (GoDaddy, Cloudflare, IONOS, etc.), crea **dos registros CNAME**:
-
-| Tipo | Nombre/Host | Valor/Destino | TTL |
-|------|---|---|---|
-| CNAME | `pedir` | *[valor que Abacus te mostró]* | Auto/3600 |
-| CNAME | `app` | *[valor que Abacus te mostró]* | Auto/3600 |
-
-### Paso 6: Verificación final
-Una vez que el DNS haya propagado y Abacus marque los dominios como "verificados":
-- Abre `https://pedir.sinkialabs.com` → debe mostrar sistema de pedidos
-- Abre `https://app.sinkialabs.com` → debe mostrar Command Center (ERP)
+### Para el equipo — app.sinkialabs.com
+1. Inicia sesión con tu cuenta autorizada.
+2. **Dashboard:** consulta métricas de caja, ventas y alertas del día.
+3. **Pedidos (`OrdersDashboard` / `KitchenDisplay`):** gestiona y despacha los pedidos entrantes.
+4. **Revo Sync:** sincroniza el menú y las ventas con el TPV Revo XEF.
+5. **Email inteligente:** revisa el buzón con triaje automático por IA.
+6. **Finanzas / RRHH:** gestiona facturas, albaranes, nóminas, fichajes y contratos.
+7. **Agentes IA:** delega tareas repetitivas al agente central.
 
 ---
 
-## 📄 Archivos de documentación para Deploy
+## 🔄 Integración Revo XEF
 
-En la carpeta encontrarás:
-- **`ABACUS_DEPLOY_STEPS.md`**: Guía paso a paso detallada para Abacus AI
-- **`ENV_VARS_FOR_ABACUS.txt`**: Variables de entorno listas para copiar
-- **`DEPLOY_CHECKLIST.md`**: Checklist completo de verificación
+SYNK-IA se sincroniza con el TPV **Revo XEF** para mantener el menú y las ventas alineadas:
 
-Copia-pega directamente desde `ENV_VARS_FOR_ABACUS.txt` al panel de Abacus para evitar errores.
+- **Categorías sincronizadas:** `COMIDA` y `BEBIDA`.
+- **Auto-procesamiento con umbrales de confianza:**
+  - `≥ 0.90` → procesado automático.
+  - `0.70 – 0.90` → requiere revisión manual.
+- **Módulos relacionados:** `RevoSync`, `RevoDashboard`, `RevoManual`, `WebSync`, `ProductInventory`.
+
+> La última tarea de mantenimiento documentada fue la **sincronización del menú de Revo XEF
+> con las categorías COMIDA y BEBIDA**.
+
+---
+
+## 🔐 Credenciales de acceso
+
+> ⚠️ **Importante:** por seguridad, las contraseñas reales **NO** se almacenan en este
+> repositorio. Configúralas únicamente en tu archivo `.env` local (basado en `.env.example`),
+> que está excluido por `.gitignore`. A continuación se listan **solo los identificadores**;
+> solicita las contraseñas al administrador del sistema.
+
+| Servicio | Usuario / Cuenta | Contraseña |
+|----------|------------------|------------|
+| **Revo XEF** | `chickenpalaceibiza2` | *(ver `.env` — variable `REVO_XEF_PASSWORD`)* |
+| **Gmail corporativo** | `info@chickenpalace.es` | *(OAuth — ver variables `GMAIL_OAUTH_*`)* |
+| **Backend / SDK** | App ID en `VITE_APP_ID` | *(gestionado por la plataforma de backend)* |
+
+🔒 **Buenas prácticas:**
+- Nunca hagas commit del archivo `.env`.
+- Rota las credenciales periódicamente.
+- Usa secretos del proveedor de hosting para los despliegues de producción.
+
+---
+
+## 📚 Documentación adicional
+
+La documentación funcional del proyecto está recogida en este propio README:
+descripción, stack, instalación, despliegues separados (`app.sinkialabs.com` y
+`pedir.sinkialabs.com`), características, guía de uso e integración con Revo XEF.
+
+> Para dudas operativas internas, contacta con el administrador del sistema en
+> **info@chickenpalace.es**.
+
+---
+
+<div align="center">
+
+**SYNK-IA** · Desarrollado para **Chicken Palace Ibiza SL** 🍗
+_Sinkia Labs — `app.sinkialabs.com` · `pedir.sinkialabs.com`_
+
+</div>

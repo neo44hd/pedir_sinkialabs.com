@@ -1,0 +1,59 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║            VARIABLES DE ENTORNO PARA ABACUS AI - COPIAR DIRECTAMENTE       ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+👉 EN EL PANEL DE ABACUS AI → Environment Variables → Ingresa EXACTAMENTE esto:
+
+═══════════════════════════════════════════════════════════════════════════════
+
+NEXT_PUBLIC_APP_HOST=app.sinkialabs.com
+NEXT_PUBLIC_ORDERING_HOST=pedir.sinkialabs.com
+NEXT_PUBLIC_WHATSAPP_PHONE=34XXXXXXXXX
+NEXT_PUBLIC_ADMIN_PIN=XXXX
+DATABASE_URL=
+NODE_ENV=production
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️ IMPORTANTE - ANTES DE HACER DEPLOY:
+
+1. NEXT_PUBLIC_WHATSAPP_PHONE
+   ❌ Actual: 34XXXXXXXXX
+   ✅ Debes cambiar por: Tu número de WhatsApp (ej: 34612345678)
+   Formato: 34 (prefijo España) + 9 dígitos (sin espacios, sin +)
+
+2. NEXT_PUBLIC_ADMIN_PIN
+   ❌ Actual: XXXX (placeholder)
+   ✅ Debes cambiar por: Un PIN seguro de 4+ dígitos (NO uses 1234)
+   Ej: 5847, 9263, etc.
+
+3. DATABASE_URL
+   ✅ Déjalo VACÍO (la app funcionará en modo "solo WhatsApp")
+   Si quieres guardar pedidos en BD, proporciona una URL PostgreSQL
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📋 DOMINIOS A AÑADIR EN ABACUS (Custom Domains):
+
+1. pedir.sinkialabs.com
+2. app.sinkialabs.com
+
+Abacus te mostrará un CNAME target para cada uno → cópialo para el paso de DNS.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔗 REGISTROS CNAME A CREAR EN TU PROVEEDOR DNS (GoDaddy, Cloudflare, etc.):
+
+Tipo    │ Nombre/Host │ Valor/Destino (del panel Abacus) │ TTL
+────────┼─────────────┼──────────────────────────────────┼─────
+CNAME   │ pedir       │ [valor que Abacus te mostró]     │ Auto
+CNAME   │ app         │ [valor que Abacus te mostró]     │ Auto
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ VERIFICACIÓN FINAL (después de propagación DNS):
+
+https://pedir.sinkialabs.com   → Sistema de pedidos online
+https://app.sinkialabs.com     → Command Center (ERP)
+
+═══════════════════════════════════════════════════════════════════════════════
